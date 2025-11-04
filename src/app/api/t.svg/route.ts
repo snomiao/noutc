@@ -1,0 +1,70 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { format, parse } from 'date-fns';
+import { formatInTimeZone, toZonedTime } from 'date-fns-tz';
+
+export async function GET(request: NextRequest) {
+  try {
+    // Get query parameters
+    const searchParams = request.nextUrl.searchParams;
+    const timeParam = searchParams.get('t');
+    const formatParam = searchParams.get('f') || 'yyyy-MM-dd HH:mm:ss zzz';
+
+    // If no time parameter, return error
+    if (!timeParam) {
+      return new NextResponse('Missing time parameter "t"', { status: 400 });
+    }
+
+    // Parse the input time (assumed to be in ISO format or parseable by Date constructor)
+    const inputDate = new Date(timeParam);
+
+    // Check if date is valid
+    if (isNaN(inputDate.getTime())) {
+      return new NextResponse('Invalid time format', { status: 400 });
+    }
+
+    // Get timezone from request headers
+    // Try multiple headers that might contain timezone info
+    const timezoneHeader = request.headers.get('x-timezone') ||
+                          request.headers.get('timezone') ||
+                          request.headers.get('cf-timezone'); // Cloudflare header
+
+    // Default to UTC if no timezone found
+    const timezone = timezoneHeader || 'UTC';
+
+    // Format the date according to the user's timezone and format string
+    let formattedDate: string;
+    try {
+      // Replace format string patterns to match date-fns format
+      // YYYY -> yyyy, DD -> dd, hh -> HH (for 24-hour), mm -> mm, ss -> ss, TZ -> zzz
+      const dateFnsFormat = formatParam
+        .replace(/YYYY/g, 'yyyy')
+        .replace(/DD/g, 'dd')
+        .replace(/hh/g, 'HH')
+        .replace(/mm/g, 'mm')
+        .replace(/sss/g, 'ss')
+        .replace(/TZ/g, 'zzz');
+
+      formattedDate = formatInTimeZone(inputDate, timezone, dateFnsFormat);
+    } catch (error) {
+      formattedDate = formatInTimeZone(inputDate, timezone, 'yyyy-MM-dd HH:mm:ss zzz');
+    }
+
+    // Generate SVG
+    const svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${formattedDate.length * 8 + 20}" height="30" viewBox="0 0 ${formattedDate.length * 8 + 20} 30">
+  <rect width="100%" height="100%" fill="#f5f5f5"/>
+  <text x="10" y="20" font-family="monospace" font-size="14" fill="#333">${formattedDate}</text>
+</svg>`;
+
+    // Return SVG response
+    return new NextResponse(svg, {
+      headers: {
+        'Content-Type': 'image/svg+xml',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+      },
+    });
+  } catch (error) {
+    console.error('Error generating SVG:', error);
+    return new NextResponse('Internal server error', { status: 500 });
+  }
+}
