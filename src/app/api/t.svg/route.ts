@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { format, parse } from 'date-fns';
+import { format, parse, formatDistanceToNow } from 'date-fns';
 import { formatInTimeZone, toZonedTime } from 'date-fns-tz';
 
 export async function GET(request: NextRequest) {
@@ -8,6 +8,7 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const timeParam = searchParams.get('t');
     const formatParam = searchParams.get('f') || 'yyyy-MM-dd HH:mm:ss zzz';
+    const relativeParam = searchParams.get('relative') === 'true';
 
     // If no time parameter, return error
     if (!timeParam) {
@@ -33,20 +34,26 @@ export async function GET(request: NextRequest) {
 
     // Format the date according to the user's timezone and format string
     let formattedDate: string;
-    try {
-      // Replace format string patterns to match date-fns format
-      // YYYY -> yyyy, DD -> dd, hh -> HH (for 24-hour), mm -> mm, ss -> ss, TZ -> zzz
-      const dateFnsFormat = formatParam
-        .replace(/YYYY/g, 'yyyy')
-        .replace(/DD/g, 'dd')
-        .replace(/hh/g, 'HH')
-        .replace(/mm/g, 'mm')
-        .replace(/sss/g, 'ss')
-        .replace(/TZ/g, 'zzz');
 
-      formattedDate = formatInTimeZone(inputDate, timezone, dateFnsFormat);
-    } catch (error) {
-      formattedDate = formatInTimeZone(inputDate, timezone, 'yyyy-MM-dd HH:mm:ss zzz');
+    if (relativeParam) {
+      // Use relative time format
+      formattedDate = formatDistanceToNow(inputDate, { addSuffix: true });
+    } else {
+      try {
+        // Replace format string patterns to match date-fns format
+        // YYYY -> yyyy, DD -> dd, hh -> HH (for 24-hour), mm -> mm, ss -> ss, TZ -> zzz
+        const dateFnsFormat = formatParam
+          .replace(/YYYY/g, 'yyyy')
+          .replace(/DD/g, 'dd')
+          .replace(/hh/g, 'HH')
+          .replace(/mm/g, 'mm')
+          .replace(/sss/g, 'ss')
+          .replace(/TZ/g, 'zzz');
+
+        formattedDate = formatInTimeZone(inputDate, timezone, dateFnsFormat);
+      } catch (error) {
+        formattedDate = formatInTimeZone(inputDate, timezone, 'yyyy-MM-dd HH:mm:ss zzz');
+      }
     }
 
     // Generate SVG
