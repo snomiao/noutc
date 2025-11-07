@@ -10,13 +10,8 @@ export async function GET(request: NextRequest) {
     const formatParam = searchParams.get('f') || 'yyyy-MM-dd HH:mm:ss zzz';
     const relativeParam = searchParams.get('relative') === 'true';
 
-    // If no time parameter, return error
-    if (!timeParam) {
-      return new NextResponse('Missing time parameter "t"', { status: 400 });
-    }
-
-    // Parse the input time (assumed to be in ISO format or parseable by Date constructor)
-    const inputDate = new Date(timeParam);
+    // Parse the input time (use current time if no parameter provided)
+    const inputDate = timeParam ? new Date(timeParam) : new Date();
 
     // Check if date is valid
     if (isNaN(inputDate.getTime())) {
