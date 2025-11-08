@@ -9,6 +9,7 @@ export async function GET(request: NextRequest) {
     const timeParam = searchParams.get('t');
     const formatParam = searchParams.get('f') || 'yyyy-MM-dd HH:mm:ss zzz';
     const relativeParam = searchParams.get('relative') === 'true';
+    const tzParam = searchParams.get('tz') || 'auto';
 
     // Parse the input time (use current time if no parameter provided)
     const inputDate = timeParam ? new Date(timeParam) : new Date();
@@ -18,14 +19,26 @@ export async function GET(request: NextRequest) {
       return new NextResponse('Invalid time format', { status: 400 });
     }
 
-    // Get timezone from request headers
-    // Try multiple headers that might contain timezone info
-    const timezoneHeader = request.headers.get('x-timezone') ||
-                          request.headers.get('timezone') ||
-                          request.headers.get('cf-timezone'); // Cloudflare header
+    // Determine timezone
+    let timezone: string;
 
-    // Default to UTC if no timezone found
-    const timezone = timezoneHeader || 'UTC';
+    if (tzParam === 'auto') {
+      // Auto-detect timezone from Vercel geolocation headers
+      // Reference: https://vercel.com/docs/edge-network/headers#request-headers
+      const vercelTimezone = request.headers.get('x-vercel-ip-timezone');
+
+      // Fallback to other timezone headers if Vercel header not available
+      const timezoneHeader = vercelTimezone ||
+                            request.headers.get('x-timezone') ||
+                            request.headers.get('timezone') ||
+                            request.headers.get('cf-timezone'); // Cloudflare header
+
+      // Default to UTC if no timezone found
+      timezone = timezoneHeader || 'UTC';
+    } else {
+      // Use the specified timezone parameter
+      timezone = tzParam;
+    }
 
     // Format the date according to the user's timezone and format string
     let formattedDate: string;
