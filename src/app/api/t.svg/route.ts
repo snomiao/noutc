@@ -10,6 +10,8 @@ export async function GET(request: NextRequest) {
     const formatParam = searchParams.get('f') || 'yyyy-MM-dd HH:mm:ss zzz';
     const relativeParam = searchParams.get('relative') === 'true';
     const tzParam = searchParams.get('tz') || 'auto';
+    const bgParam = searchParams.get('bg') || 'white';
+    const fgParam = searchParams.get('fg') || 'black';
 
     // Parse the input time (use current time if no parameter provided)
     const inputDate = timeParam ? new Date(timeParam) : new Date();
@@ -68,8 +70,8 @@ export async function GET(request: NextRequest) {
     // Generate SVG
     const svg = `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="${formattedDate.length * 8 + 20}" height="30" viewBox="0 0 ${formattedDate.length * 8 + 20} 30">
-  <rect width="100%" height="100%" fill="#f5f5f5"/>
-  <text x="10" y="20" font-family="monospace" font-size="14" fill="#333">${formattedDate}</text>
+  <rect width="100%" height="100%" fill="${bgParam}"/>
+  <text x="10" y="20" font-family="monospace" font-size="14" fill="${fgParam}">${formattedDate}</text>
 </svg>`;
 
     // Return SVG response

@@ -21,7 +21,7 @@ Convert UTC timestamps to local time as SVG images.
 Access the API endpoint:
 
 ```
-/api/t.svg?t=<timestamp>&f=<format>&relative=<true|false>
+/api/t.svg?t=<timestamp>&f=<format>&relative=<true|false>&bg=<color>&fg=<color>
 ```
 
 ### Examples
@@ -46,6 +46,8 @@ https://noutc.vercel.app/api/t.svg?t=2025-12-25T15:30:00Z&f=MMMM%20dd,%20yyyy%20
 - **t** (required): ISO 8601 timestamp
 - **f** (optional): Date format string (default: yyyy-MM-dd HH:mm:ss zzz)
 - **relative** (optional): Set to `true` for relative time format (e.g., "5 minutes ago")
+- **bg** (optional): Background color (default: white)
+- **fg** (optional): Foreground/text color (default: black)
 
 ### Format Patterns
 
