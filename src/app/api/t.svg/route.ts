@@ -49,13 +49,14 @@ export async function GET(request: NextRequest) {
     } else {
       try {
         // Replace format string patterns to match date-fns format
-        // YYYY -> yyyy, DD -> dd, hh -> HH (for 24-hour), mm -> mm, ss -> ss, TZ -> zzz
+        // YYYY -> yyyy, DD -> dd, hh -> HH (for 24-hour), mm -> mm, ss -> ss, TZ -> zzz, ZZZ -> zzzz (full timezone name)
         const dateFnsFormat = formatParam
           .replace(/YYYY/g, 'yyyy')
           .replace(/DD/g, 'dd')
           .replace(/hh/g, 'HH')
           .replace(/mm/g, 'mm')
           .replace(/sss/g, 'ss')
+          .replace(/ZZZ/g, 'zzzz')
           .replace(/TZ/g, 'zzz');
 
         formattedDate = formatInTimeZone(inputDate, timezone, dateFnsFormat);
