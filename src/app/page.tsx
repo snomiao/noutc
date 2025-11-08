@@ -308,6 +308,7 @@ export default function Home() {
           <li><code>ss</code> - 2-digit second (00-59)</li>
           <li><code>a</code> - AM/PM</li>
           <li><code>zzz</code> - timezone abbreviation (e.g., EDT, PST)</li>
+          <li><code>ZZZ</code> - full timezone name (e.g., Asia/Shanghai, America/New_York)</li>
           <li><code>MMMM</code> - full month name (e.g., January)</li>
           <li><code>EEEE</code> - full day name (e.g., Monday)</li>
         </ul>
