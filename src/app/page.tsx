@@ -6,6 +6,8 @@ export default function Home() {
   const [datetime, setDatetime] = useState('2025-10-31T00:00:00Z');
   const [format, setFormat] = useState('yyyy-MM-dd HH:mm:ss zzz');
   const [relative, setRelative] = useState(false);
+  const [bgColor, setBgColor] = useState('white');
+  const [fgColor, setFgColor] = useState('black');
 
   const commonFormats = [
     { label: 'Default (yyyy-MM-dd HH:mm:ss zzz)', value: 'yyyy-MM-dd HH:mm:ss zzz' },
@@ -27,6 +29,8 @@ export default function Home() {
     } else {
       params.set('relative', 'true');
     }
+    if (bgColor !== 'white') params.set('bg', bgColor);
+    if (fgColor !== 'black') params.set('fg', fgColor);
     return `${baseUrl}/api/t.svg?${params.toString()}`;
   };
 
@@ -135,6 +139,50 @@ export default function Home() {
             />
           </div>
         )}
+
+        {/* Color Inputs */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+          <div>
+            <label htmlFor="bg-color" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+              Background Color:
+            </label>
+            <input
+              id="bg-color"
+              type="text"
+              value={bgColor}
+              onChange={(e) => setBgColor(e.target.value)}
+              placeholder="white"
+              style={{
+                width: '100%',
+                padding: '0.5rem',
+                fontSize: '1rem',
+                border: '1px solid #ced4da',
+                borderRadius: '4px',
+                fontFamily: 'monospace'
+              }}
+            />
+          </div>
+          <div>
+            <label htmlFor="fg-color" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+              Foreground Color:
+            </label>
+            <input
+              id="fg-color"
+              type="text"
+              value={fgColor}
+              onChange={(e) => setFgColor(e.target.value)}
+              placeholder="black"
+              style={{
+                width: '100%',
+                padding: '0.5rem',
+                fontSize: '1rem',
+                border: '1px solid #ced4da',
+                borderRadius: '4px',
+                fontFamily: 'monospace'
+              }}
+            />
+          </div>
+        </div>
 
         {/* Preview */}
         <div style={{ marginTop: '1.5rem' }}>
@@ -287,13 +335,15 @@ export default function Home() {
         <h2>📖 API Documentation</h2>
 
         <h3>Usage</h3>
-        <p>Access: <code>/api/t.svg?t=&lt;timestamp&gt;&f=&lt;format&gt;&relative=&lt;true|false&gt;</code></p>
+        <p>Access: <code>/api/t.svg?t=&lt;timestamp&gt;&f=&lt;format&gt;&relative=&lt;true|false&gt;&bg=&lt;color&gt;&fg=&lt;color&gt;</code></p>
 
         <h3>Parameters</h3>
         <ul>
           <li><strong>t</strong> (optional): ISO 8601 timestamp - defaults to current time if not provided</li>
           <li><strong>f</strong> (optional): Date format string - default: <code>yyyy-MM-dd HH:mm:ss zzz</code></li>
           <li><strong>relative</strong> (optional): Set to <code>true</code> for relative time format (e.g., "5 minutes ago")</li>
+          <li><strong>bg</strong> (optional): Background color - default: <code>white</code></li>
+          <li><strong>fg</strong> (optional): Foreground/text color - default: <code>black</code></li>
         </ul>
 
         <h3>Format Patterns</h3>
